@@ -7,6 +7,11 @@ from drf_yasg import openapi
 from rest_framework import permissions
 from rest_framework.authtoken import views
 
+from accounts.views import MyObtainAuthToken
+
+#vgbbdfh
+
+
 schema_view = get_schema_view(
    openapi.Info(
       title="TwitterLike App Test API",
@@ -24,9 +29,12 @@ doc_urlpatterns = [
     path('redoc/', schema_view.with_ui('redoc', cache_timeout=0)),
 ]
 
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/v1/', include('shop.urlsv1')),
     path('auth/', include('rest_framework.urls')),
-    path('token/', views.obtain_auth_token),
+    path('token/', MyObtainAuthToken.as_view()),
 ] + doc_urlpatterns + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+

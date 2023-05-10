@@ -1,12 +1,13 @@
 from rest_framework import viewsets, status
-from rest_framework.authentication import TokenAuthentication, SessionAuthentication
+from rest_framework.authentication import TokenAuthentication, SessionAuthentication, BasicAuthentication
+from rest_framework.parsers import FormParser, MultiPartParser
 from rest_framework.response import Response
 from rest_framework import filters
 from rest_framework import pagination
 from rest_framework import generics, mixins
 from rest_framework.decorators import api_view
 from rest_framework.authtoken.models import Token
-
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from .models import Category, Product, Order, User
 from .permissions import IsAuthorOrAllowAny
 from .serializers import CategorySerializer, ProductSerializer, OrderSerializer
@@ -15,8 +16,9 @@ from .serializers import CategorySerializer, ProductSerializer, OrderSerializer
 class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
-    authentication_classes = [TokenAuthentication, SessionAuthentication]
+    authentication_classes = [SessionAuthentication, BasicAuthentication, TokenAuthentication]
     permission_classes = [IsAuthorOrAllowAny]
+
 
 
 @api_view(['GET'])
@@ -26,6 +28,7 @@ def category_detail(request, name):
     return Response(serializer.data)
 
 
+
 class TweetPagination(pagination.PageNumberPagination):
     page_size = 2
 
@@ -33,11 +36,12 @@ class TweetPagination(pagination.PageNumberPagination):
 class ProductViewSet(viewsets.ModelViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
-    authentication_classes = [TokenAuthentication, SessionAuthentication]
+    authentication_classes = [SessionAuthentication, BasicAuthentication, TokenAuthentication]
     permission_classes = [IsAuthorOrAllowAny]
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
     search_fields = ['name', ]
     ordering_fields = ['created', ]
+    parser_classes = (FormParser, MultiPartParser)
 
 
 @api_view(['GET'])
@@ -47,6 +51,7 @@ def phone_detail(request, name):
     if serializer:
         return Response(serializer.data)
     return Response(serializer.errors, status=400)
+
 
 
 @api_view(['GET'])
@@ -60,7 +65,7 @@ def product_detail(request, product_id):
 class OrderViewSet(viewsets.ModelViewSet):
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
-    authentication_classes = [TokenAuthentication, SessionAuthentication]
+    authentication_classes = [SessionAuthentication]
     permission_classes = [IsAuthorOrAllowAny]
 
 
@@ -72,7 +77,7 @@ def order_detail(request, name):
         return Response(serializer.data)
     return Response(serializer.errors, status=400)
 
-#
+
 # class UserRegisterView(generics.CreateAPIView):
 #     queryset = User.objects.all()
 #     serializer_class = UserRegisterSerializer
